@@ -1,0 +1,66 @@
+﻿@{
+    ViewBag.Title = "Home Page";
+}
+
+<div class="jumbotron">
+    <form method="get" action="@Url.Action("Index")">
+        <label for="track">Search</label>
+        <input type="text" name="track" id="track" />
+        <button type="submit">Perform search</button>
+    </form>
+    <h2>Twitter statistics</h2>
+    <div class="progress">
+        <div class="progress-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" style="width: 0%;"></div>
+    </div>
+    <div class="row">
+
+        <div id="showing" class="col-md-6">
+            Will begin soon ...
+        </div>
+        <div id="statistics" class="col-md-6">
+            ...
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="row">
+        <div id="images" class="">
+        </div>
+    
+    </div>
+</div>
+<script>
+    $(function () {
+        // obtain reference to the hub proxy and hub itself
+        var theHub = $.connection.twitterHub;
+
+        // this is the function that the server will call to broadcast new tweets
+        theHub.client.broadcast = function (tweet) {
+            console.log(tweet.Etime);
+
+            $(".progress-bar").css({ 'width': tweet.TweetCount +'%' });
+            $("#showing").html('Females: ' + tweet.females + '<hr>' +
+                               'Males: ' + tweet.males + '<hr>' +
+                               'Time elapsed: ' + tweet.etime);
+
+        };
+
+        theHub.client.pics = function (images) {
+            $.each(images, function (i, val) {
+                $("#images").append('<div class="col-xs-6 col-md-3"><a href="#" class="thumbnail"><img src="'
+                    + val + '" alt="Smiley face" height="420" width="420"></a></div>');
+            });
+        }
+
+        theHub.client.statistics = function(val) {
+            $("#statistics").append('Female/h: ' + val.eFemale + '<hr>'
+                                  + 'Male/h ' + val.eMales + '<hr>' +
+                                    'Tweets/h ' + val.eTime);
+        }
+        // this is a function that indicates that connection to the hub has been successful
+        $.connection.hub.start().done(function () {
+            console.log("connected");
+        });
+    });
+</script>
